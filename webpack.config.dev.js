@@ -6,7 +6,7 @@ const paseEs6Imports = require('parse-es6-imports');
 
 const uglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
 
-const dependencies = require('./package.json').dependencies;
+const dependencies = require('./package.json').alias;
 
 // 构建目录配置
 const BUILD_CONFIG = {
@@ -63,29 +63,31 @@ function _getImportsScriptList() {
                 // 优先取dependencies中的路劲作为id，否则则用paseEs6Imports解析出来的id
                 if (dependencies[modulesList[key].fromModule]) {
                     moduleId = dependencies[modulesList[key].fromModule];
-                    files[moduleId] = [path.resolve(jsDir, dependencies[modulesList[key].fromModule])];
+                    files[moduleId] = path.resolve(jsDir, dependencies[modulesList[key].fromModule]);
                 } else {
                     moduleId = path.resolve(jsDir, modulesList[key].fromModule).replace(jsDir + '\\', '');
-                    // 这里为什么要用数组，原因是入口文件不能被引用，https://github.com/webpack/webpack/issues/300
-                    files[moduleId] = [path.resolve(jsDir, modulesList[key].fromModule)];
+                    // webpack1要用数组，原因是入口文件不能被引用，https://github.com/webpack/webpack/issues/300
+                    files[moduleId] = path.resolve(jsDir, modulesList[key].fromModule);
                 }
             }
         }
     });
-
     return files;
 }
 
 module.exports = {
     cache: true,
-    BUILD_CONFIG: BUILD_CONFIG,
     devtool: '#source-map',
     entry: getEntry(),
     output: {
         path: path.join(__dirname, BUILD_CONFIG.dist_dir + '/js/'),
         publicPath: BUILD_CONFIG.dist_dir + '/js/',
         filename: '[name].js',
-        chunkFilename: '[chunkhash].js'
+        chunkFilename: '[chunkhash].js',
+        // libraryTarget: 'umd'  // amd, umd, commonjs
+    },
+    devServer: {
+        inline: true   //实时刷新
     },
     resolve: {
         // 全局依赖id，例如使用了就可以在全局require使用key，使用package.json里面的配置，例如: var $ = require('juery')，另外，同时也可以使用相对路径来使用
@@ -94,29 +96,40 @@ module.exports = {
         // extensions中第一个空串不能去，官方解释如下：
         // Using this will override the default array, meaning that webpack will no longer try to resolve modules using the default extensions. 
         // For modules that are imported with their extension, e.g. import SomeFile from "./somefile.ext", to be properly resolved, an empty string must be included in the array.
-        extensions: ['', '.js', '.jsx']
+        extensions: ['*', '.js', '.jsx']
     },
     module: {
         // babel loader配置
-        loaders: [{
+        rules: [{
             test: /\.js$/,
             include: path.join(__dirname, 'src'),
             exclude: /node_modules/,
-            loader: 'babel-loader',
-            query: {
-                presets: ["react"]
-            }
+            use: [{
+                loader: 'babel-loader',
+                options: {
+                    "presets": ["react", ["es2015", {module: true}]]
+                }
+            }]
         }],
     },
     plugins: [
-        new webpack.optimize.CommonsChunkPlugin('common.js')/* ,
+        new webpack.optimize.CommonsChunkPlugin({
+            name: 'common',
+            async: true
+        }),
+
+        // webpack 2不再支持自定义属性，需要使用LoaderOptionsPlugin来引用
+        new webpack.LoaderOptionsPlugin({
+            BUILD_CONFIG: BUILD_CONFIG,
+            WEBPACK_FUNC: {
+                getImportsScriptList: _getImportsScriptList
+            }
+        })/* ,
         new uglifyJsPlugin({
             compress: {
                 warnings: false
             }
         }) */
-    ],
-    WEBPACK_FUNC: {
-        getImportsScriptList: _getImportsScriptList
-    }
+    ]
+    
 };
