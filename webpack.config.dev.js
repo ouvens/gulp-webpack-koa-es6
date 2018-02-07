@@ -116,6 +116,7 @@ module.exports = {
         new webpack.optimize.CommonsChunkPlugin({
             name: "common",
             filename: "common.js"
+
         }),
 
         // webpack 2不再支持自定义属性，需要使用LoaderOptionsPlugin来引用
