@@ -35,7 +35,7 @@ const render = function *(ctx, path, data) {
 
 	let html = yield views(__dirname + tplPath, {
 		map: {
-			html: 'swig'
+			html: 'underscore'
 		}
 	})(path, data);
 

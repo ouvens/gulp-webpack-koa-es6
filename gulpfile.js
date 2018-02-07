@@ -17,15 +17,16 @@ const gulp = require('gulp'),
     spriter = require('gulp-css-spriter'),
     base64 = require('gulp-css-base64'),
     webpack = require('webpack'),
-    webpackConfig = require('./webpack.config.js'),
+    webpackConfig = require('./webpack.config.dev.js'),
     webpackDevConfig = require('./webpack.config.dev.js'),
     connect = require('gulp-connect');
 
-const BUILD_CONFIG = webpackDevConfig.BUILD_CONFIG;
+const BUILD_CONFIG = webpackDevConfig.plugins[1].options.BUILD_CONFIG;
 
 // const BUILD_CONFIG = webpackConfig.BUILD_CONFIG;
 
-const WEBPACK_FUNC = webpackDevConfig.WEBPACK_FUNC;
+const WEBPACK_FUNC = webpackDevConfig.plugins[1].options.WEBPACK_FUNC;
+
 
 const host = {
     path: BUILD_CONFIG.dist_dir + '/',

@@ -26,12 +26,11 @@
     "gulp-webpack": "^1.5.0",
     "html-webpack-plugin": "^2.30.1",
     "parse-es6-imports": "^1.0.1",
-    "webpack": "^1.15.0",
+    "webpack": "^2.7.0",
     "webpack-common-shake": "^1.5.3",
     "webpack-sources": "^1.0.1"
   },
-  "dependencies": {
-    "gulp-file-include": "^2.0.0",
+  "alias": {
     "react": "lib/react.min",
     "react-dom": "lib/react-dom.min",
     "test": "common/test"
