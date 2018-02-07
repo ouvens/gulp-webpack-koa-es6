@@ -67,13 +67,14 @@ gulp.task('md5:js', ['build-js'], function (done) {
 //将css加上10位md5，并修改html中的引用路径，该动作依赖sprite
 gulp.task('md5:css', ['sprite'], function (done) {
     gulp.src(BUILD_CONFIG.dist_dir + '/css/**/*.css')
-        .pipe(md5(10, BUILD_CONFIG.dist_dir + BUILD_CONFIG.html_dir + '/*.html'))
-        .pipe(gulp.dest(BUILD_CONFIG.dist_dir + '/css'))
-        .on('end', done);
+    .pipe(md5(10, BUILD_CONFIG.dist_dir + BUILD_CONFIG.html_dir + '/*.html'))
+    .pipe(gulp.dest(BUILD_CONFIG.dist_dir + '/css'))
+    .on('end', done);
 });
 
 //用于在html文件中直接include文件
 gulp.task('fileinclude', function (done) {
+    console.log(BUILD_CONFIG.dist_dir + BUILD_CONFIG.html_dir)
     gulp.src([BUILD_CONFIG.src_dir + BUILD_CONFIG.html_dir + '/*.html'])
         .pipe(swig({
             data: {
@@ -141,7 +142,7 @@ gulp.task('open', function (done) {
         .pipe(gulpOpen({
             app: browser,
             // uri为启动静态服务器的登录目录
-            uri: 'http://localhost:3000' + BUILD_CONFIG.html_dir
+            uri: 'http://localhost:3000'
         }))
         .on('end', done);
 });
@@ -176,5 +177,5 @@ gulp.task("dev-js", ['fileinclude'], function(callback) {
 gulp.task('dist', ['connect', 'fileinclude', 'md5:css', 'md5:js', 'open']);
 
 //开发，不默认打开open浏览器
-gulp.task('dev', ['connect', 'copy:images', 'fileinclude', 'lessmin', 'dev-js', 'watch']);
-gulp.task('default', ['connect', 'copy:images', 'fileinclude', 'lessmin', 'dev-js', 'watch']);
+gulp.task('dev', ['connect', 'copy:images', 'fileinclude', 'lessmin', 'dev-js', 'open', 'watch']);
+gulp.task('default', ['connect', 'copy:images', 'fileinclude', 'lessmin', 'dev-js','open', 'watch']);
